@@ -1,14 +1,14 @@
-FROM ubuntu:18.04 as build
-ARG DEBIAN_FRONTEND=noninteractive
-WORKDIR /build
-RUN apt-get update && apt-get install -y gcc git libc6-dev make gettext
-RUN git clone https://github.com/deurk/qwfwd.git && cd qwfwd && ./configure && make
-
-FROM ubuntu:18.04 as run
+FROM ubuntu:24.04
 WORKDIR /qwfwd
-RUN apt-get update && apt-get install -y gettext \
+RUN apt-get update && apt-get install -y gettext wget \
   && rm -rf /var/lib/apt/lists/*
+
 COPY files .
-COPY --from=build /build/qwfwd/qwfwd.bin ./qwfwd.bin
+
+RUN wget https://builds.quakeworld.nu/qwfwd/releases/latest/linux/aarch64/qwfwd
+
+RUN mv qwfwd qwfwd.bin && chmod +x qwfwd.bin
+
 COPY scripts/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
+
